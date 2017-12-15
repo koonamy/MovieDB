@@ -78,6 +78,12 @@ h1 {
     text-align:center;
 }
 
+button{
+    margin:10px;
+    height:500px;
+    background-color:#80dfff;
+}
+
 .event {
     border-radius:4px;
     -webkit-border-radius:4px;

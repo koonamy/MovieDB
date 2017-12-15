@@ -1,88 +1,81 @@
-function id(element) {
-   return document.getElementById(element);
-}
+
 
 function init(){
-
-   id("gotoPage2Butt").addEventListener("click", function(){
-      gotoPage2();
-      noti();
-      showDatePicker();
-      showTimePicker();
-  });
-
-  id("gotoPage3Butt").addEventListener("click", function(){
-         gotoPage3();
-         noti();
-     });
-
-   id("loadListButt").addEventListener("click", function(){
-      loadList();
-  });
-
-}
-
-function gotoPage2(){
-   $.mobile.navigate("#page2", {info:"info goes here"});
-}
-
-function gotoPage3(){
-   $.mobile.navigate("#page3", {info:"info goes here"});
+   
+    getMoviesListAndDrawList();
+    
 }
 
 
-function loadList(){
-   var data = {"notifications":["08/12/2017 - 11:30","07/12/2017 - 12:30","22/12/2017 - 15:30"]}
+function getMovieAndDrawDetail(){
+    
+     var request = $.ajax({
+          url: "https://api.themoviedb.org/3/movie/550?api_key=9ac5c72fe7e83a2b01b2e3e80931416e",
+          method: "GET"
+        });
 
-   var myHtml ="";
+       request.done(function( result ) {
+                  //return result;
 
-   for (i=0;i<data.notifications.length;i++){
-       myHtml += "<li>" + data.notifications[i] + "</li>";
-   }
+                //alert(result.original_title);
+              });
 
-  id("myList").innerHTML = myHtml;
+              request.fail(function( jqXHR, textStatus ) {
+                alert( "Request failed: " + textStatus );
+          });
+      }
 
 
-}
+
+      function getMoviesListAndDrawList(){
+          var theList = $("#mylist");
+           theList.empty(); //vacia la lista
+
+           var request = $.ajax({
+                url: "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=80865681c4ccae7b47ffebc8b71952d8",
+                method: "GET"
+              });
+
+              request.done(function( moviesList ) {
 
 
-function noti(){
-cordova.plugins.notification.local.schedule({
-    title: 'Date Alert',
-    text: moment().format('MMMM Do YYYY, h:mm:ss a'),
-    foreground: true
-});
-}
 
-function showDatePicker(){
+                  for (i=0;i<moviesList.results.length;i++){
+                        theList.append( "<li> <a onClick='javascript:details("+i+")'>"+ moviesList.results[i].original_title + "<img src=\"https://image.tmdb.org/t/p/w92" + moviesList.results[i].poster_path + "\"><br><p>" + moviesList.results[i].overview +"</p></a></li>");
+                      }
 
-    var options = {
-    type: 'date',         // 'date' or 'time', required
-    date: new Date(),     // date or timestamp, default: current date
+                  theList.listview("refresh");
 
-};
+                  });
 
-window.DateTimePicker.pick(options, function (date) {
-    $("#DatePrint").empty();
-    $("#DatePrint").append(moment(date).format('MMMM Do YYYY'));
-    DateTime = {year:moment(date).format('YYYY'),month:moment(date).format('MM'), day:moment(date).format('DD')};
-});
+              request.fail(function( jqXHR, textStatus ) {
+                alert( "Request failed: " + textStatus );
+          });
+      }
 
-}
+      function details(id){
 
-function showTimePicker(){
-    var options = {
-    type: 'time',         // 'date' or 'time', required
-    date: new Date(),     // date or timestamp, default: current date
+           var theList = $("#mylist");
 
-};
+           theList.empty(); //vacia la lista
 
-window.DateTimePicker.pick(options, function (date) {
-    $("#TimePrint").empty();
-    $("#TimePrint").append(moment(date).format('h:mm a'));
-    DateTime.hour = moment(date).format('HH');
-    DateTime.minute = moment(date).format('mm');
+           var request = $.ajax({
+                     url: "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=80865681c4ccae7b47ffebc8b71952d8",
+                     method: "GET"
+                   });
 
-});
+                   request.done(function( moviesList ) {
 
-}
+                   theList.append( "<article><h2>"+ moviesList.results[id].original_title+ "</h2> <br> <img src=\"https://image.tmdb.org/t/p/w154" + moviesList.results[id].poster_path+"\"><br><p>"+moviesList.results[id].overview+"</p> </li>");
+
+
+                       theList.listview("refresh");
+
+                       });
+
+                   request.fail(function( jqXHR, textStatus ) {
+                     alert( "Request failed: " + textStatus );
+               });
+
+
+      }
